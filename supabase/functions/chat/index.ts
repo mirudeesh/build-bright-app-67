@@ -21,6 +21,19 @@ serve(async (req) => {
 
     console.log('Processing chat request with', messages.length, 'messages');
 
+    // Get current date and time
+    const now = new Date();
+    const timeString = now.toLocaleString('en-US', { 
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZoneName: 'short'
+    });
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -32,7 +45,11 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: 'You are a helpful AI assistant. Provide clear, concise, and friendly responses.' 
+            content: `You are a helpful AI assistant. Provide clear, concise, and friendly responses. 
+            
+Current date and time: ${timeString}
+
+When users ask about the time, use this information. For different timezones, calculate the offset accordingly.` 
           },
           ...messages
         ],
