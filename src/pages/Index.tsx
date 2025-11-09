@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import ChatMessage from "@/components/ChatMessage";
 import ChatInput from "@/components/ChatInput";
+import WelcomeScreen from "@/components/WelcomeScreen";
 import { useChat } from "@/hooks/useChat";
 import { Bot } from "lucide-react";
 
@@ -35,19 +36,7 @@ const Index = () => {
       <div className="flex-1 overflow-y-auto">
         <div className="container mx-auto px-4 py-6 max-w-4xl">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-              <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
-                <Bot className="h-10 w-10 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold text-foreground mb-2">
-                  Welcome to AI Chatbot
-                </h2>
-                <p className="text-muted-foreground">
-                  Start a conversation and I'll help you with anything you need!
-                </p>
-              </div>
-            </div>
+            <WelcomeScreen onPromptClick={sendMessage} />
           ) : (
             <div className="space-y-4">
               {messages.map((message, index) => (
