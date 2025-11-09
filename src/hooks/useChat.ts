@@ -31,7 +31,21 @@ export const useChat = () => {
         }
       );
 
-      if (!response.ok || !response.body) {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || "Failed to get response";
+        
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!response.body) {
         throw new Error("Failed to get response");
       }
 
