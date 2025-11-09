@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import ChatMessage from "@/components/ChatMessage";
 import ChatInput from "@/components/ChatInput";
 import WelcomeScreen from "@/components/WelcomeScreen";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useChat } from "@/hooks/useChat";
 import { Bot } from "lucide-react";
 
@@ -21,14 +22,17 @@ const Index = () => {
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-            <Bot className="h-6 w-6 text-primary-foreground" />
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+              <Bot className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">AI Chatbot</h1>
+              <p className="text-sm text-muted-foreground">Your helpful AI assistant</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-semibold text-foreground">AI Chatbot</h1>
-            <p className="text-sm text-muted-foreground">Your helpful AI assistant</p>
-          </div>
+          <ThemeToggle />
         </div>
       </header>
 
