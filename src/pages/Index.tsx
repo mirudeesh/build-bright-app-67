@@ -4,10 +4,11 @@ import ChatInput from "@/components/ChatInput";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useChat } from "@/hooks/useChat";
-import { Bot } from "lucide-react";
+import { Bot, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const { messages, sendMessage, isLoading } = useChat();
+  const { messages, sendMessage, isLoading, clearMessages } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -32,7 +33,19 @@ const Index = () => {
               <p className="text-sm text-muted-foreground">Your helpful AI assistant</p>
             </div>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            {messages.length > 0 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={clearMessages}
+                title="Clear chat"
+              >
+                <Trash2 className="h-5 w-5" />
+              </Button>
+            )}
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

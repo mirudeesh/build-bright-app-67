@@ -110,5 +110,9 @@ export const useChat = () => {
     }
   };
 
-  return { messages, sendMessage, isLoading };
+  const clearMessages = () => {
+    setMessages([]);
+  };
+
+  return { messages, sendMessage, isLoading, clearMessages };
 };
