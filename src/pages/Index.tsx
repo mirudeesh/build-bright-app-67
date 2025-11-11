@@ -6,7 +6,7 @@ import WelcomeScreen from "@/components/WelcomeScreen";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
-import { Bot, Trash2, LogOut } from "lucide-react";
+import { Bot, Trash2, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
@@ -74,6 +74,14 @@ const Index = () => {
                 <Trash2 className="h-5 w-5" />
               </Button>
             )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/profile")}
+              title="Profile"
+            >
+              <User className="h-5 w-5" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
