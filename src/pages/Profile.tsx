@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { ArrowLeft, Upload, Download } from 'lucide-react';
+import liquenoLogo from '@/assets/liqueno-logo.png';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -101,6 +102,16 @@ const Profile = () => {
     }
   };
 
+  const downloadLogo = () => {
+    const link = document.createElement('a');
+    link.href = liquenoLogo;
+    link.download = 'liqueno-logo.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Logo downloaded successfully');
+  };
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
@@ -173,6 +184,26 @@ const Profile = () => {
                 {loading ? 'Saving...' : 'Save Changes'}
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Liqueno Logo</CardTitle>
+            <CardDescription>
+              Download the liqueno logo for your use
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center gap-4">
+              <div className="p-6 bg-muted rounded-lg">
+                <img src={liquenoLogo} alt="liqueno logo" className="h-32 w-32 rounded-full" />
+              </div>
+              <Button onClick={downloadLogo} className="w-full sm:w-auto">
+                <Download className="mr-2 h-4 w-4" />
+                Download Logo
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
