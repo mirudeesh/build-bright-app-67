@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Bot } from "lucide-react";
+import liquenoLogo from "@/assets/liqueno-logo.png";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -154,9 +155,7 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
-            <Bot className="h-8 w-8 text-primary-foreground" />
-          </div>
+          <img src={liquenoLogo} alt="liqueno logo" className="h-12 w-12 rounded-full" />
           <h1 className="text-3xl font-bold text-foreground">liqueno</h1>
         </div>
 

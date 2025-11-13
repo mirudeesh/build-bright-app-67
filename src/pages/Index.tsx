@@ -6,7 +6,8 @@ import WelcomeScreen from "@/components/WelcomeScreen";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
-import { Bot, Trash2, LogOut, User } from "lucide-react";
+import { Trash2, LogOut, User, Bot } from "lucide-react";
+import liquenoLogo from "@/assets/liqueno-logo.png";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
@@ -55,9 +56,7 @@ const Index = () => {
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-              <Bot className="h-6 w-6 text-primary-foreground" />
-            </div>
+            <img src={liquenoLogo} alt="liqueno logo" className="h-10 w-10 rounded-full" />
             <div>
               <h1 className="text-xl font-semibold text-foreground">liqueno</h1>
               <p className="text-sm text-muted-foreground">Your helpful AI assistant</p>

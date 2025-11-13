@@ -1,6 +1,7 @@
 import { Bot, Clock, TrendingUp, Newspaper, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import liquenoLogo from "@/assets/liqueno-logo.png";
 
 interface WelcomeScreenProps {
   onPromptClick: (prompt: string) => void;
@@ -33,8 +34,8 @@ const WelcomeScreen = ({ onPromptClick }: WelcomeScreenProps) => {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center space-y-8 py-8">
       <div className="space-y-4">
-        <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-          <Bot className="h-10 w-10 text-primary" />
+        <div className="h-20 w-20 rounded-full flex items-center justify-center mx-auto">
+          <img src={liquenoLogo} alt="liqueno logo" className="h-20 w-20 rounded-full" />
         </div>
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">
