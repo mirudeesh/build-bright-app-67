@@ -157,7 +157,7 @@ const Auth = () => {
           <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
             <Bot className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">AI Chatbot</h1>
+          <h1 className="text-3xl font-bold text-foreground">liqueno</h1>
         </div>
 
         <Tabs defaultValue="login" className="w-full">
