@@ -191,13 +191,13 @@ const Profile = () => {
           <CardHeader>
             <CardTitle>Liqueno Logo</CardTitle>
             <CardDescription>
-              Download the liqueno logo for your use
+              Download the Liqueno logo for your use
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center gap-4">
               <div className="p-6 bg-muted rounded-lg">
-                <img src={liquenoLogo} alt="liqueno logo" className="h-32 w-32 rounded-full" />
+                <img src={liquenoLogo} alt="Liqueno logo" className="h-32 w-32 rounded-full" />
               </div>
               <Button onClick={downloadLogo} className="w-full sm:w-auto">
                 <Download className="mr-2 h-4 w-4" />

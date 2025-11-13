@@ -155,8 +155,8 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-3 mb-8">
-          <img src={liquenoLogo} alt="liqueno logo" className="h-12 w-12 rounded-full" />
-          <h1 className="text-3xl font-bold text-foreground">liqueno</h1>
+          <img src={liquenoLogo} alt="Liqueno logo" className="h-12 w-12 rounded-full" />
+          <h1 className="text-3xl font-bold text-foreground">Liqueno</h1>
         </div>
 
         <Tabs defaultValue="login" className="w-full">

@@ -56,9 +56,9 @@ const Index = () => {
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={liquenoLogo} alt="liqueno logo" className="h-10 w-10 rounded-full" />
+            <img src={liquenoLogo} alt="Liqueno logo" className="h-10 w-10 rounded-full" />
             <div>
-              <h1 className="text-xl font-semibold text-foreground">liqueno</h1>
+              <h1 className="text-xl font-semibold text-foreground">Liqueno</h1>
               <p className="text-sm text-muted-foreground">Your helpful AI assistant</p>
             </div>
           </div>

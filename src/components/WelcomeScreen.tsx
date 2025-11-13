@@ -39,7 +39,7 @@ const WelcomeScreen = ({ onPromptClick }: WelcomeScreenProps) => {
         </div>
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">
-            Welcome to liqueno
+            Welcome to Liqueno
           </h2>
           <p className="text-muted-foreground text-lg">
             Your intelligent assistant with real-time data access
