@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Message {
+export interface Message {
   role: "user" | "assistant";
-  content: string;
+  content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
 }
 
 export const useChat = () => {
@@ -12,8 +12,19 @@ export const useChat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const sendMessage = async (content: string) => {
-    const userMessage: Message = { role: "user", content };
+  const sendMessage = async (content: string | { text: string; image: string }) => {
+    let messageContent: Message["content"];
+    
+    if (typeof content === "string") {
+      messageContent = content;
+    } else {
+      messageContent = [
+        { type: "text", text: content.text },
+        { type: "image_url", image_url: { url: content.image } }
+      ];
+    }
+    
+    const userMessage: Message = { role: "user", content: messageContent };
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
 

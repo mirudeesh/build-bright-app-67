@@ -6,7 +6,7 @@ import { useState } from "react";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
-  content: string;
+  content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
 }
 
 const ChatMessage = ({ role, content }: ChatMessageProps) => {
@@ -16,7 +16,10 @@ const ChatMessage = ({ role, content }: ChatMessageProps) => {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(content);
+      const textContent = typeof content === "string" 
+        ? content 
+        : content.find(c => c.type === "text")?.text || "";
+      await navigator.clipboard.writeText(textContent);
       setCopied(true);
       toast({
         description: "Message copied to clipboard",
@@ -28,6 +31,33 @@ const ChatMessage = ({ role, content }: ChatMessageProps) => {
         variant: "destructive",
       });
     }
+  };
+
+  const renderContent = () => {
+    if (typeof content === "string") {
+      return <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>;
+    }
+    
+    return (
+      <div className="space-y-2">
+        {content.map((item, idx) => {
+          if (item.type === "text" && item.text) {
+            return <p key={idx} className="text-sm leading-relaxed whitespace-pre-wrap">{item.text}</p>;
+          }
+          if (item.type === "image_url" && item.image_url?.url) {
+            return (
+              <img 
+                key={idx} 
+                src={item.image_url.url} 
+                alt="Uploaded" 
+                className="max-w-xs rounded-lg border border-border"
+              />
+            );
+          }
+          return null;
+        })}
+      </div>
+    );
   };
   
   return (
@@ -48,7 +78,7 @@ const ChatMessage = ({ role, content }: ChatMessageProps) => {
               : "bg-chat-ai-bg text-chat-ai-text border border-border"
           }`}
         >
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
+          {renderContent()}
         </div>
         
         {!isUser && (
