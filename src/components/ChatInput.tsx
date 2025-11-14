@@ -1,7 +1,7 @@
 import { useState, KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Send, MessageSquare, AudioWaveform, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Mic, AudioWaveform } from "lucide-react";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -18,44 +18,39 @@ const ChatInput = ({ onSend, disabled }: ChatInputProps) => {
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleSend();
     }
   };
 
   return (
-    <div className="flex gap-2 items-end">
-      <Textarea
+    <div className="relative w-full max-w-3xl mx-auto">
+      <Input
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Type your message..."
-        className="min-h-[48px] max-h-[200px] resize-none rounded-2xl flex-1"
+        placeholder="Ask anything"
+        className="h-12 pr-24 rounded-full border-border bg-background shadow-sm text-base"
         disabled={disabled}
       />
-      <div className="flex items-center gap-2">
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
         <Button
-          variant="outline"
-          className="rounded-full px-4 py-2 h-10 gap-2 border-border bg-background hover:bg-accent"
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 rounded-full hover:bg-accent"
+          onClick={handleSend}
+          disabled={disabled || !input.trim()}
         >
-          <MessageSquare className="h-4 w-4" />
-          <span className="text-sm font-medium">Chat</span>
+          <Mic className="h-5 w-5 text-muted-foreground" />
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          className="h-10 w-10 rounded-full hover:bg-accent"
+          className="h-9 w-9 rounded-full hover:bg-accent"
         >
-          <AudioWaveform className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-10 w-10 rounded-full hover:bg-accent"
-        >
-          <User className="h-4 w-4" />
+          <AudioWaveform className="h-5 w-5 text-muted-foreground" />
         </Button>
       </div>
     </div>
