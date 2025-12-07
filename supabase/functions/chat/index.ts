@@ -94,13 +94,51 @@ async function getSportsScores(sport?: string) {
   }
 }
 
+// Input validation
+function validateMessages(messages: unknown): boolean {
+  if (!Array.isArray(messages)) return false;
+  if (messages.length === 0 || messages.length > 50) return false;
+  
+  for (const msg of messages) {
+    if (!msg || typeof msg !== 'object') return false;
+    if (!['user', 'assistant'].includes(msg.role)) return false;
+    
+    // Validate content
+    if (typeof msg.content === 'string') {
+      if (msg.content.length > 50000) return false; // Max 50k chars per message
+    } else if (Array.isArray(msg.content)) {
+      if (msg.content.length > 10) return false; // Max 10 content items
+      for (const item of msg.content) {
+        if (item.type === 'text' && typeof item.text === 'string') {
+          if (item.text.length > 50000) return false;
+        } else if (item.type === 'image_url' && item.image_url?.url) {
+          if (typeof item.image_url.url !== 'string' || item.image_url.url.length > 5000000) return false;
+        }
+      }
+    } else {
+      return false;
+    }
+  }
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages } = await req.json();
+    const body = await req.json();
+    const { messages } = body;
+    
+    // Validate input
+    if (!validateMessages(messages)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid message format or content too long' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
