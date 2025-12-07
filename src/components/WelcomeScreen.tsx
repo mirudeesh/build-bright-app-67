@@ -34,8 +34,12 @@ const WelcomeScreen = ({ onPromptClick }: WelcomeScreenProps) => {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center space-y-8 py-8">
       <div className="space-y-4">
-        <div className="h-20 w-20 rounded-full flex items-center justify-center mx-auto">
-          <img src={liquenoLogo} alt="liqueno logo" className="h-20 w-20 rounded-full" />
+        <div className="relative h-24 w-24 mx-auto">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/60 to-accent rounded-full blur-xl opacity-70 animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-accent/40 to-primary/40 rounded-full blur-lg" />
+          <div className="relative h-24 w-24 rounded-full flex items-center justify-center bg-background/50 backdrop-blur-sm border border-primary/20">
+            <img src={liquenoLogo} alt="liqueno logo" className="h-20 w-20 rounded-full" />
+          </div>
         </div>
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">
