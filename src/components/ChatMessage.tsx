@@ -34,15 +34,19 @@ const ChatMessage = ({ role, content }: ChatMessageProps) => {
   };
 
   const renderContent = () => {
+    const textClass = isUser 
+      ? "text-sm leading-relaxed whitespace-pre-wrap" 
+      : "text-sm leading-relaxed whitespace-pre-wrap font-semibold";
+    
     if (typeof content === "string") {
-      return <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>;
+      return <p className={textClass}>{content}</p>;
     }
     
     return (
       <div className="space-y-2">
         {content.map((item, idx) => {
           if (item.type === "text" && item.text) {
-            return <p key={idx} className="text-sm leading-relaxed whitespace-pre-wrap">{item.text}</p>;
+            return <p key={idx} className={textClass}>{item.text}</p>;
           }
           if (item.type === "image_url" && item.image_url?.url) {
             return (
