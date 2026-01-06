@@ -34,11 +34,16 @@ const WelcomeScreen = ({ onPromptClick }: WelcomeScreenProps) => {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center space-y-8 py-8">
       <div className="space-y-4">
-        <div className="relative h-24 w-24 mx-auto">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/60 to-accent rounded-full blur-xl opacity-70 animate-pulse" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-accent/40 to-primary/40 rounded-full blur-lg" />
-          <div className="relative h-24 w-24 rounded-full flex items-center justify-center bg-background/50 backdrop-blur-sm border border-primary/20">
-            <img src={liquenoLogo} alt="liqueno logo" className="h-20 w-20 rounded-full" />
+        <div className="relative h-32 w-32 mx-auto">
+          {/* Outer glow ring */}
+          <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-full blur-2xl opacity-60 animate-pulse" />
+          {/* Secondary glow */}
+          <div className="absolute -inset-2 bg-gradient-to-br from-cyan-400/50 via-blue-400/50 to-purple-400/50 rounded-full blur-xl opacity-80" />
+          {/* Inner rotating gradient */}
+          <div className="absolute inset-0 bg-gradient-conic from-cyan-500 via-blue-500 via-purple-500 to-cyan-500 rounded-full blur-md opacity-40 animate-spin" style={{ animationDuration: '8s' }} />
+          {/* Logo container */}
+          <div className="relative h-32 w-32 rounded-full flex items-center justify-center bg-background/80 backdrop-blur-md border border-white/20 shadow-2xl shadow-cyan-500/20">
+            <img src={liquenoLogo} alt="liqueno logo" className="h-24 w-24 rounded-full" />
           </div>
         </div>
         <div>
