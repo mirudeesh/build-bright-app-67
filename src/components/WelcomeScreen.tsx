@@ -1,7 +1,7 @@
-import { Bot, Clock, TrendingUp, Newspaper, Trophy } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Clock, TrendingUp, Newspaper, Trophy } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import liquenoLogo from "@/assets/liqueno-logo.png";
+import ParticleEffect from "@/components/ParticleEffect";
 
 interface WelcomeScreenProps {
   onPromptClick: (prompt: string) => void;
@@ -35,6 +35,8 @@ const WelcomeScreen = ({ onPromptClick }: WelcomeScreenProps) => {
     <div className="flex flex-col items-center justify-center h-full text-center space-y-8 py-8">
       <div className="space-y-4">
         <div className="relative h-32 w-32 mx-auto animate-float">
+          {/* Particle effect */}
+          <ParticleEffect />
           {/* Outer glow ring */}
           <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-full blur-2xl opacity-60 animate-pulse" />
           {/* Secondary glow */}
