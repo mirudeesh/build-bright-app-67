@@ -66,7 +66,6 @@ async function getNewsHeadlines(topic?: string) {
 async function getSportsScores(sport?: string) {
   try {
     console.log('Fetching sports scores for:', sport || 'general');
-    // Using ESPN API (public endpoint)
     const sportType = sport?.toLowerCase() || 'basketball';
     const espnSport = sportType === 'soccer' ? 'football' : sportType;
     
@@ -91,6 +90,84 @@ async function getSportsScores(sport?: string) {
   } catch (error) {
     console.error('Error fetching sports scores:', error);
     return { error: 'Failed to fetch sports scores' };
+  }
+}
+
+// Function to fetch weather
+async function getWeather(city: string) {
+  try {
+    console.log('Fetching weather for:', city);
+    // Using wttr.in API (no key required)
+    const response = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`);
+    const data = await response.json();
+    
+    if (data.current_condition && data.current_condition[0]) {
+      const current = data.current_condition[0];
+      const location = data.nearest_area?.[0];
+      return {
+        city: location?.areaName?.[0]?.value || city,
+        country: location?.country?.[0]?.value || '',
+        temperature: {
+          celsius: current.temp_C,
+          fahrenheit: current.temp_F
+        },
+        feelsLike: {
+          celsius: current.FeelsLikeC,
+          fahrenheit: current.FeelsLikeF
+        },
+        condition: current.weatherDesc?.[0]?.value || 'Unknown',
+        humidity: current.humidity + '%',
+        windSpeed: current.windspeedKmph + ' km/h',
+        windDirection: current.winddir16Point,
+        visibility: current.visibility + ' km',
+        uvIndex: current.uvIndex
+      };
+    }
+    return { error: 'Weather data not available for this location' };
+  } catch (error) {
+    console.error('Error fetching weather:', error);
+    return { error: 'Failed to fetch weather data' };
+  }
+}
+
+// Function to fetch cryptocurrency prices
+async function getCryptoPrice(symbol: string) {
+  try {
+    console.log('Fetching crypto price for:', symbol);
+    const coinId = symbol.toLowerCase();
+    // Map common symbols to CoinGecko IDs
+    const symbolMap: Record<string, string> = {
+      'btc': 'bitcoin',
+      'eth': 'ethereum',
+      'xrp': 'ripple',
+      'doge': 'dogecoin',
+      'ada': 'cardano',
+      'sol': 'solana',
+      'dot': 'polkadot',
+      'matic': 'matic-network',
+      'link': 'chainlink',
+      'ltc': 'litecoin',
+      'avax': 'avalanche-2',
+      'bnb': 'binancecoin'
+    };
+    
+    const id = symbolMap[coinId] || coinId;
+    const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`);
+    const data = await response.json();
+    
+    if (data[id]) {
+      return {
+        symbol: symbol.toUpperCase(),
+        name: id.charAt(0).toUpperCase() + id.slice(1),
+        price: data[id].usd,
+        change24h: data[id].usd_24h_change?.toFixed(2) + '%',
+        marketCap: data[id].usd_market_cap
+      };
+    }
+    return { error: 'Cryptocurrency not found' };
+  } catch (error) {
+    console.error('Error fetching crypto:', error);
+    return { error: 'Failed to fetch cryptocurrency price' };
   }
 }
 
@@ -210,6 +287,40 @@ serve(async (req) => {
             }
           }
         }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'get_weather',
+          description: 'Get current weather information for a city',
+          parameters: {
+            type: 'object',
+            properties: {
+              city: {
+                type: 'string',
+                description: 'The city name (e.g., London, New York, Tokyo)'
+              }
+            },
+            required: ['city']
+          }
+        }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'get_crypto_price',
+          description: 'Get current cryptocurrency price (e.g., BTC, ETH, DOGE, SOL)',
+          parameters: {
+            type: 'object',
+            properties: {
+              symbol: {
+                type: 'string',
+                description: 'The cryptocurrency symbol (e.g., BTC for Bitcoin, ETH for Ethereum)'
+              }
+            },
+            required: ['symbol']
+          }
+        }
       }
     ];
 
@@ -224,9 +335,11 @@ You have access to these capabilities:
 - Stock prices: Use get_stock_price to fetch current stock information for any publicly traded company
 - News headlines: Use get_news_headlines to get the latest news on any topic
 - Sports scores: Use get_sports_scores to get recent game results and scores
+- Weather: Use get_weather to get current weather conditions for any city worldwide
+- Cryptocurrency: Use get_crypto_price to get real-time crypto prices (BTC, ETH, DOGE, SOL, etc.)
 - Image analysis: You can see and analyze images that users send you. Describe what you see and answer questions about the images.
 
-When users ask about stocks, news, or sports, use the appropriate function to get real-time data.
+When users ask about stocks, news, sports, weather, or cryptocurrency, use the appropriate function to get real-time data.
 When users send images, carefully describe what you see and provide helpful insights.
 
 You can answer questions about virtually anything - from science and history to current events and practical advice. Be conversational, helpful, and engaging.
@@ -275,6 +388,10 @@ Important: When asked who created you or who made you, respond that you were cre
           functionResult = await getNewsHeadlines(functionArgs.topic);
         } else if (functionName === 'get_sports_scores') {
           functionResult = await getSportsScores(functionArgs.sport);
+        } else if (functionName === 'get_weather') {
+          functionResult = await getWeather(functionArgs.city);
+        } else if (functionName === 'get_crypto_price') {
+          functionResult = await getCryptoPrice(functionArgs.symbol);
         }
 
         // Add function result to conversation
