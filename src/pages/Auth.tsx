@@ -7,9 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Bot } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import liquenoLogo from "@/assets/liqueno-logo.png";
 import { z } from "zod";
+import { Shield, Mail, ArrowLeft } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
@@ -28,9 +29,11 @@ const signupSchema = z.object({
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, sendOtp, verifyOtp, needsOtpVerification, otpVerified, setNeedsOtpVerification, signOut } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState("");
@@ -45,10 +48,72 @@ const Auth = () => {
   const [signupErrors, setSignupErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (user) {
+    if (user && otpVerified) {
       navigate("/");
     }
-  }, [user, navigate]);
+  }, [user, otpVerified, navigate]);
+
+  // Auto-send OTP when user needs verification
+  useEffect(() => {
+    if (needsOtpVerification && user && !otpSent) {
+      handleSendOtp();
+    }
+  }, [needsOtpVerification, user]);
+
+  const handleSendOtp = async () => {
+    setIsLoading(true);
+    const { error } = await sendOtp();
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Failed to send OTP",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setOtpSent(true);
+      toast({
+        title: "OTP Sent",
+        description: "Check your email for the 6-digit code.",
+      });
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (otpCode.length !== 6) {
+      toast({
+        title: "Invalid code",
+        description: "Please enter a 6-digit code.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    const { error, success } = await verifyOtp(otpCode);
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Verification failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else if (success) {
+      toast({
+        title: "Verified!",
+        description: "Welcome to Liqueno!",
+      });
+      navigate("/");
+    }
+  };
+
+  const handleBackToLogin = async () => {
+    await signOut();
+    setOtpCode("");
+    setOtpSent(false);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +123,7 @@ const Auth = () => {
       const validated = loginSchema.parse({ email: loginEmail, password: loginPassword });
       setIsLoading(true);
 
-      const { error } = await signIn(validated.email, validated.password);
+      const { error, needsOtp } = await signIn(validated.email, validated.password);
 
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
@@ -74,10 +139,10 @@ const Auth = () => {
             variant: "destructive",
           });
         }
-      } else {
+      } else if (needsOtp) {
         toast({
-          title: "Success",
-          description: "Logged in successfully!",
+          title: "Verification required",
+          description: "We're sending a verification code to your email.",
         });
       }
     } catch (error) {
@@ -150,6 +215,86 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  // OTP Verification Screen
+  if (needsOtpVerification && user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="w-full max-w-md">
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <img src={liquenoLogo} alt="Liqueno logo" className="h-12 w-12 rounded-full" />
+            <h1 className="text-3xl font-bold text-foreground">Liqueno</h1>
+          </div>
+
+          <Card>
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <Shield className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle>Verify Your Identity</CardTitle>
+              <CardDescription>
+                We've sent a 6-digit code to<br />
+                <span className="font-medium text-foreground">{user.email}</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex justify-center">
+                <InputOTP
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(value) => setOtpCode(value)}
+                  disabled={isLoading}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+
+              <Button 
+                onClick={handleVerifyOtp} 
+                className="w-full" 
+                disabled={isLoading || otpCode.length !== 6}
+              >
+                {isLoading ? "Verifying..." : "Verify Code"}
+              </Button>
+
+              <div className="flex flex-col gap-2 text-center">
+                <Button
+                  variant="ghost"
+                  onClick={handleSendOtp}
+                  disabled={isLoading}
+                  className="text-sm"
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Resend Code
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  onClick={handleBackToLogin}
+                  disabled={isLoading}
+                  className="text-sm text-muted-foreground"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Login
+                </Button>
+              </div>
+
+              <p className="text-xs text-muted-foreground text-center">
+                You can also verify by asking the AI: "verify my code [your-code]"
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
