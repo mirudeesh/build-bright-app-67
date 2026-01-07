@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 interface Particle {
   id: number;
@@ -9,31 +9,31 @@ interface Particle {
   delay: number;
 }
 
+const generateParticles = (): Particle[] => {
+  const particleCount = 20;
+  const particles: Particle[] = [];
+
+  for (let i = 0; i < particleCount; i++) {
+    const angle = (i / particleCount) * 360;
+    const radius = 60 + Math.random() * 40;
+    const x = Math.cos((angle * Math.PI) / 180) * radius;
+    const y = Math.sin((angle * Math.PI) / 180) * radius;
+
+    particles.push({
+      id: i,
+      x,
+      y,
+      size: 2 + Math.random() * 4,
+      duration: 2 + Math.random() * 3,
+      delay: Math.random() * 2,
+    });
+  }
+
+  return particles;
+};
+
 const ParticleEffect = () => {
-  const [particles, setParticles] = useState<Particle[]>([]);
-
-  useEffect(() => {
-    const particleCount = 20;
-    const newParticles: Particle[] = [];
-
-    for (let i = 0; i < particleCount; i++) {
-      const angle = (i / particleCount) * 360;
-      const radius = 60 + Math.random() * 40;
-      const x = Math.cos((angle * Math.PI) / 180) * radius;
-      const y = Math.sin((angle * Math.PI) / 180) * radius;
-
-      newParticles.push({
-        id: i,
-        x,
-        y,
-        size: 2 + Math.random() * 4,
-        duration: 2 + Math.random() * 3,
-        delay: Math.random() * 2,
-      });
-    }
-
-    setParticles(newParticles);
-  }, []);
+  const particles = useMemo(() => generateParticles(), []);
 
   return (
     <div className="absolute inset-0 overflow-visible pointer-events-none">
