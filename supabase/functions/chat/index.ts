@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -171,6 +172,54 @@ async function getCryptoPrice(symbol: string) {
   }
 }
 
+// Function to verify OTP code
+async function verifyOtpCode(code: string, authToken: string) {
+  try {
+    console.log('Verifying OTP code via chat');
+    
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Get user from token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(authToken);
+    
+    if (authError || !user) {
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    // Validate code format
+    if (!code || !/^\d{6}$/.test(code)) {
+      return { success: false, error: 'Invalid code format. Must be 6 digits.' };
+    }
+
+    // Find valid OTP
+    const { data: otpRecord, error: fetchError } = await supabase
+      .from("otp_verifications")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("code", code)
+      .eq("verified", false)
+      .gt("expires_at", new Date().toISOString())
+      .single();
+
+    if (fetchError || !otpRecord) {
+      return { success: false, error: 'Invalid or expired code' };
+    }
+
+    // Mark OTP as verified
+    await supabase
+      .from("otp_verifications")
+      .update({ verified: true })
+      .eq("id", otpRecord.id);
+
+    return { success: true, message: 'OTP verified successfully! You now have full access.' };
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    return { success: false, error: 'Failed to verify OTP' };
+  }
+}
+
 // Input validation
 function validateMessages(messages: unknown): boolean {
   if (!Array.isArray(messages)) return false;
@@ -321,8 +370,29 @@ serve(async (req) => {
             required: ['symbol']
           }
         }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'verify_otp',
+          description: 'Verify a 6-digit OTP code sent to the user\'s email for authentication. Use this when a user says something like "verify my code 123456" or "my code is 123456" or just provides a 6-digit number.',
+          parameters: {
+            type: 'object',
+            properties: {
+              code: {
+                type: 'string',
+                description: 'The 6-digit OTP code to verify'
+              }
+            },
+            required: ['code']
+          }
+        }
       }
     ];
+
+    // Extract auth token from request
+    const authHeader = req.headers.get('Authorization');
+    const authToken = authHeader?.replace('Bearer ', '') || '';
 
     let conversationMessages = [
       { 
@@ -337,9 +407,11 @@ You have access to these capabilities:
 - Sports scores: Use get_sports_scores to get recent game results and scores
 - Weather: Use get_weather to get current weather conditions for any city worldwide
 - Cryptocurrency: Use get_crypto_price to get real-time crypto prices (BTC, ETH, DOGE, SOL, etc.)
+- OTP Verification: Use verify_otp when a user provides a 6-digit code to verify their identity
 - Image analysis: You can see and analyze images that users send you. Describe what you see and answer questions about the images.
 
 When users ask about stocks, news, sports, weather, or cryptocurrency, use the appropriate function to get real-time data.
+When a user provides a 6-digit code or asks to verify a code, use the verify_otp function.
 When users send images, carefully describe what you see and provide helpful insights.
 
 You can answer questions about virtually anything - from science and history to current events and practical advice. Be conversational, helpful, and engaging.
@@ -392,6 +464,8 @@ Important: When asked who created you or who made you, respond that you were cre
           functionResult = await getWeather(functionArgs.city);
         } else if (functionName === 'get_crypto_price') {
           functionResult = await getCryptoPrice(functionArgs.symbol);
+        } else if (functionName === 'verify_otp') {
+          functionResult = await verifyOtpCode(functionArgs.code, authToken);
         }
 
         // Add function result to conversation

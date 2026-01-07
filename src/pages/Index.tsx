@@ -12,15 +12,17 @@ import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, signOut, loading } = useAuth();
+  const { user, signOut, loading, otpVerified, needsOtpVerification } = useAuth();
   const { messages, sendMessage, isLoading, clearMessages } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate("/auth");
+    } else if (!loading && user && needsOtpVerification && !otpVerified) {
+      navigate("/auth");
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, otpVerified, needsOtpVerification]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -38,7 +40,7 @@ const Index = () => {
     );
   }
 
-  if (!user) {
+  if (!user || (needsOtpVerification && !otpVerified)) {
     return null;
   }
 
