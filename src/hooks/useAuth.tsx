@@ -7,6 +7,7 @@ interface AuthContextType {
   session: Session | null;
   signUp: (email: string, password: string, username?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any; needsOtp?: boolean }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   sendOtp: () => Promise<{ error: any }>;
   verifyOtp: (code: string) => Promise<{ error: any; success?: boolean }>;
@@ -36,6 +37,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Reset OTP state on sign out
         if (event === 'SIGNED_OUT') {
           setOtpVerified(false);
+          setNeedsOtpVerification(false);
+        }
+        
+        // Auto-verify for OAuth logins (Google, etc.)
+        if (event === 'SIGNED_IN' && session?.user?.app_metadata?.provider !== 'email') {
+          setOtpVerified(true);
           setNeedsOtpVerification(false);
         }
       }
@@ -80,6 +87,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setNeedsOtpVerification(false);
       return { error: null, needsOtp: false };
     }
+    
+    return { error };
+  };
+
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      }
+    });
     
     return { error };
   };
@@ -151,6 +169,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       session, 
       signUp, 
       signIn, 
+      signInWithGoogle,
       signOut, 
       sendOtp,
       verifyOtp,
