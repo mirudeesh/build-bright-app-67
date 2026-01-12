@@ -53,13 +53,6 @@ const Auth = () => {
     }
   }, [user, otpVerified, navigate]);
 
-  // Auto-send OTP when user needs verification
-  useEffect(() => {
-    if (needsOtpVerification && user && !otpSent) {
-      handleSendOtp();
-    }
-  }, [needsOtpVerification, user]);
-
   const handleSendOtp = async () => {
     setIsLoading(true);
     const { error } = await sendOtp();
