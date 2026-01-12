@@ -75,10 +75,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     
     if (!error) {
-      // Login successful, now need OTP verification
-      setNeedsOtpVerification(true);
-      setOtpVerified(false);
-      return { error: null, needsOtp: true };
+      // Login successful - skip OTP, go directly to app
+      setOtpVerified(true);
+      setNeedsOtpVerification(false);
+      return { error: null, needsOtp: false };
     }
     
     return { error };
