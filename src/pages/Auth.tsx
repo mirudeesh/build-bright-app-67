@@ -31,7 +31,7 @@ const signupSchema = z.object({
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { signIn, signUp, signInWithGoogle, user, sendOtp, verifyOtp, needsOtpVerification, otpVerified, setNeedsOtpVerification, signOut } = useAuth();
+  const { signIn, signUp, signInWithGoogle, signInWithApple, user, sendOtp, verifyOtp, needsOtpVerification, otpVerified, setNeedsOtpVerification, signOut } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [otpCode, setOtpCode] = useState("");
