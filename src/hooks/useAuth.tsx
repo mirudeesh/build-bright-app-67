@@ -8,6 +8,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, username?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ error: any; needsOtp?: boolean }>;
   signInWithGoogle: () => Promise<{ error: any }>;
+  signInWithApple: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   sendOtp: () => Promise<{ error: any }>;
   verifyOtp: (code: string) => Promise<{ error: any; success?: boolean }>;
