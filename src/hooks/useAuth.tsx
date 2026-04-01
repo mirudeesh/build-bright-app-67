@@ -211,6 +211,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signUp, 
       signIn, 
       signInWithGoogle,
+      signInWithApple,
       signOut, 
       sendOtp,
       verifyOtp,
