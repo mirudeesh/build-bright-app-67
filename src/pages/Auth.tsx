@@ -9,8 +9,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import liquenoLogo from "@/assets/liqueno-logo.png";
+import { Checkbox } from "@/components/ui/checkbox";
 import { z } from "zod";
 import { Shield, Mail, ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const loginSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
@@ -34,6 +36,10 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState("");
@@ -116,7 +122,7 @@ const Auth = () => {
       const validated = loginSchema.parse({ email: loginEmail, password: loginPassword });
       setIsLoading(true);
 
-      const { error, needsOtp } = await signIn(validated.email, validated.password);
+      const { error, needsOtp } = await signIn(validated.email, validated.password, rememberMe);
 
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
@@ -289,6 +295,73 @@ const Auth = () => {
     );
   }
 
+  // Forgot Password Screen
+  if (forgotPassword) {
+    const handleForgotPassword = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!forgotEmail.trim()) {
+        toast({ title: "Error", description: "Please enter your email.", variant: "destructive" });
+        return;
+      }
+      setIsLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      setIsLoading(false);
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Email sent", description: "Check your email for a password reset link." });
+        setForgotPassword(false);
+        setForgotEmail("");
+      }
+    };
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="w-full max-w-md">
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <img src={liquenoLogo} alt="Liqueno logo" className="h-12 w-12 rounded-full" />
+            <h1 className="text-3xl font-bold text-foreground">Liqueno</h1>
+          </div>
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle>Reset Password</CardTitle>
+              <CardDescription>Enter your email and we'll send you a reset link</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="forgot-email">Email</Label>
+                  <Input
+                    id="forgot-email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Sending..." : "Send Reset Link"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setForgotPassword(false)}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Login
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
@@ -327,7 +400,16 @@ const Auth = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="login-password">Password</Label>
+                      <button
+                        type="button"
+                        className="text-xs text-primary hover:underline"
+                        onClick={() => setForgotPassword(true)}
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
                     <Input
                       id="login-password"
                       type="password"
@@ -339,6 +421,17 @@ const Auth = () => {
                     {loginErrors.password && (
                       <p className="text-sm text-destructive">{loginErrors.password}</p>
                     )}
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="remember-me"
+                      checked={rememberMe}
+                      onCheckedChange={(checked) => setRememberMe(checked === true)}
+                    />
+                    <Label htmlFor="remember-me" className="text-sm font-normal cursor-pointer">
+                      Remember me
+                    </Label>
                   </div>
 
                   <Button type="submit" className="w-full" disabled={isLoading}>

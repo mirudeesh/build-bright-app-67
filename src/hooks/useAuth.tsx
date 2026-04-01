@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   signUp: (email: string, password: string, username?: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any; needsOtp?: boolean }>;
+  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ error: any; needsOtp?: boolean }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   sendOtp: () => Promise<{ error: any }>;
@@ -58,6 +58,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Clear session on browser close if "Remember me" was not checked
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (sessionStorage.getItem('liqueno_session_only') === 'true') {
+        localStorage.removeItem('sb-xnbiwocnyslsdrmezpdy-auth-token');
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   const signUp = async (email: string, password: string, username?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
@@ -75,14 +86,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, rememberMe?: boolean) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
     if (!error) {
-      // Login successful - skip OTP, go directly to app
+      // If "Remember me" is not checked, mark session for cleanup on browser close
+      if (!rememberMe) {
+        sessionStorage.setItem('liqueno_session_only', 'true');
+      } else {
+        sessionStorage.removeItem('liqueno_session_only');
+      }
       setOtpVerified(true);
       setNeedsOtpVerification(false);
       return { error: null, needsOtp: false };
