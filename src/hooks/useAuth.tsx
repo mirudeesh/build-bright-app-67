@@ -8,6 +8,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, username?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ error: any; needsOtp?: boolean }>;
   signInWithGoogle: () => Promise<{ error: any }>;
+  signInWithApple: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   sendOtp: () => Promise<{ error: any }>;
   verifyOtp: (code: string) => Promise<{ error: any; success?: boolean }>;
@@ -183,6 +184,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signInWithApple = async () => {
+    try {
+      const { lovable } = await import('@/integrations/lovable/index');
+      const result = await lovable.auth.signInWithOAuth('apple', {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) return { error: result.error };
+      if (result.redirected) return { error: null };
+      return { error: null };
+    } catch (error: any) {
+      return { error };
+    }
+  };
+
   const signOut = async () => {
     setOtpVerified(false);
     setNeedsOtpVerification(false);
@@ -196,6 +211,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signUp, 
       signIn, 
       signInWithGoogle,
+      signInWithApple,
       signOut, 
       sendOtp,
       verifyOtp,
