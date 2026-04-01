@@ -58,6 +58,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Clear session on browser close if "Remember me" was not checked
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (sessionStorage.getItem('liqueno_session_only') === 'true') {
+        localStorage.removeItem('sb-xnbiwocnyslsdrmezpdy-auth-token');
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   const signUp = async (email: string, password: string, username?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
