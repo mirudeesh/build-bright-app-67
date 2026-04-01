@@ -122,7 +122,7 @@ const Auth = () => {
       const validated = loginSchema.parse({ email: loginEmail, password: loginPassword });
       setIsLoading(true);
 
-      const { error, needsOtp } = await signIn(validated.email, validated.password);
+      const { error, needsOtp } = await signIn(validated.email, validated.password, rememberMe);
 
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
