@@ -295,6 +295,73 @@ const Auth = () => {
     );
   }
 
+  // Forgot Password Screen
+  if (forgotPassword) {
+    const handleForgotPassword = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!forgotEmail.trim()) {
+        toast({ title: "Error", description: "Please enter your email.", variant: "destructive" });
+        return;
+      }
+      setIsLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      setIsLoading(false);
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Email sent", description: "Check your email for a password reset link." });
+        setForgotPassword(false);
+        setForgotEmail("");
+      }
+    };
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="w-full max-w-md">
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <img src={liquenoLogo} alt="Liqueno logo" className="h-12 w-12 rounded-full" />
+            <h1 className="text-3xl font-bold text-foreground">Liqueno</h1>
+          </div>
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle>Reset Password</CardTitle>
+              <CardDescription>Enter your email and we'll send you a reset link</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="forgot-email">Email</Label>
+                  <Input
+                    id="forgot-email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Sending..." : "Send Reset Link"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setForgotPassword(false)}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Login
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
