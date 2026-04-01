@@ -9,8 +9,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import liquenoLogo from "@/assets/liqueno-logo.png";
+import { Checkbox } from "@/components/ui/checkbox";
 import { z } from "zod";
 import { Shield, Mail, ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const loginSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
