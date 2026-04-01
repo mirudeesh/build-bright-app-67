@@ -75,14 +75,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, rememberMe?: boolean) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
     if (!error) {
-      // Login successful - skip OTP, go directly to app
+      // If "Remember me" is not checked, mark session for cleanup on browser close
+      if (!rememberMe) {
+        sessionStorage.setItem('liqueno_session_only', 'true');
+      } else {
+        sessionStorage.removeItem('liqueno_session_only');
+      }
       setOtpVerified(true);
       setNeedsOtpVerification(false);
       return { error: null, needsOtp: false };
