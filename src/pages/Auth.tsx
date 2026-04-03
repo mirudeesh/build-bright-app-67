@@ -35,6 +35,8 @@ const Auth = () => {
   const { signIn, signUp, signInWithGoogle, signInWithApple, user, sendOtp, verifyOtp, needsOtpVerification, otpVerified, setNeedsOtpVerification, signOut } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
 
