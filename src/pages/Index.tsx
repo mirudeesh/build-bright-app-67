@@ -74,11 +74,20 @@ const Index = () => {
             )}
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               onClick={() => navigate("/profile")}
               title="Profile"
+              className="flex items-center gap-2 px-2"
             >
-              <User className="h-5 w-5" />
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture} alt="avatar" />
+                <AvatarFallback className="text-xs">
+                  {(user?.user_metadata?.full_name || user?.user_metadata?.username || user?.email || "U").charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="hidden sm:inline text-sm font-medium max-w-[100px] truncate">
+                {user?.user_metadata?.full_name || user?.user_metadata?.username || user?.email?.split("@")[0]}
+              </span>
             </Button>
             <Button
               variant="ghost"
