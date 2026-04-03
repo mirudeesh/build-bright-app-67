@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +11,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import liquenoLogo from "@/assets/liqueno-logo.png";
 import { Checkbox } from "@/components/ui/checkbox";
 import { z } from "zod";
-import { Shield, Mail, ArrowLeft } from "lucide-react";
+import { Shield, Mail, ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const loginSchema = z.object({
