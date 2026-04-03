@@ -218,6 +218,30 @@ const Auth = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        toast({ title: "Google sign-in failed", description: error.message, variant: "destructive" });
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    setAppleLoading(true);
+    try {
+      const { error } = await signInWithApple();
+      if (error) {
+        toast({ title: "Apple sign-in failed", description: error.message, variant: "destructive" });
+      }
+    } finally {
+      setAppleLoading(false);
+    }
+  };
+
   // OTP Verification Screen
   if (needsOtpVerification && user) {
     return (
