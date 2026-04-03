@@ -29,6 +29,10 @@ const Index = () => {
     navigate("/auth");
   };
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background">
@@ -43,14 +47,6 @@ const Index = () => {
   if (!user || (needsOtpVerification && !otpVerified)) {
     return null;
   }
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   return (
     <div className="flex flex-col h-screen bg-background">
