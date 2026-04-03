@@ -7,6 +7,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
 import { Trash2, LogOut, User, Bot } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import liquenoLogo from "@/assets/liqueno-logo.png";
 import { Button } from "@/components/ui/button";
 
