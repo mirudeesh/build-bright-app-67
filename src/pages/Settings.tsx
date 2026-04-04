@@ -206,7 +206,9 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        <Button onClick={handleSave} className="w-full">Save Preferences</Button>
+        <Button onClick={handleSave} className="w-full" disabled={saving}>
+          {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : "Save Preferences"}
+        </Button>
       </div>
     </div>
   );
