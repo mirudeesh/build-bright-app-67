@@ -107,6 +107,7 @@ const ResetPassword = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                 />
+                <PasswordStrengthIndicator password={password} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirm-new-password">Confirm Password</Label>
