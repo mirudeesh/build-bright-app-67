@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import liquenoLogo from "@/assets/liqueno-logo.png";
 import { Lock } from "lucide-react";
+import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
