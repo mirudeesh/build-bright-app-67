@@ -80,31 +80,47 @@ const Index = () => {
                 <Trash2 className="h-5 w-5" />
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/profile")}
-              title="Profile"
-              className="flex items-center gap-2 px-2"
-            >
-              <Avatar className="h-7 w-7">
-                <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture} alt="avatar" />
-                <AvatarFallback className="text-xs">
-                  {(user?.user_metadata?.full_name || user?.user_metadata?.username || user?.email || "U").charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="hidden sm:inline text-sm font-medium max-w-[100px] truncate">
-                {user?.user_metadata?.full_name || user?.user_metadata?.username || user?.email?.split("@")[0]}
-              </span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSignOut}
-              title="Logout"
-            >
-              <LogOut className="h-5 w-5" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2 px-2"
+                >
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture} alt="avatar" />
+                    <AvatarFallback className="text-xs">
+                      {(user?.user_metadata?.full_name || user?.user_metadata?.username || user?.email || "U").charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:inline text-sm font-medium max-w-[100px] truncate">
+                    {user?.user_metadata?.full_name || user?.user_metadata?.username || user?.email?.split("@")[0]}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="font-normal">
+                  <p className="text-sm font-medium truncate">
+                    {user?.user_metadata?.full_name || user?.user_metadata?.username || "User"}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/profile")}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <ThemeToggle />
           </div>
         </div>
