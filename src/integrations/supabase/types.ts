@@ -68,6 +68,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          chat_sounds: boolean
+          created_at: string
+          email_notifications: boolean
+          id: string
+          language: string
+          theme: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chat_sounds?: boolean
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          language?: string
+          theme?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chat_sounds?: boolean
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          language?: string
+          theme?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

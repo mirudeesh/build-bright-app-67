@@ -12,6 +12,7 @@ import liquenoLogo from "@/assets/liqueno-logo.png";
 import { Checkbox } from "@/components/ui/checkbox";
 import { z } from "zod";
 import { Shield, Mail, ArrowLeft, Loader2 } from "lucide-react";
+import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator";
 import { supabase } from "@/integrations/supabase/client";
 
 const loginSchema = z.object({
@@ -562,6 +563,7 @@ const Auth = () => {
                       onChange={(e) => setSignupPassword(e.target.value)}
                       disabled={isLoading}
                     />
+                    <PasswordStrengthIndicator password={signupPassword} />
                     {signupErrors.password && (
                       <p className="text-sm text-destructive">{signupErrors.password}</p>
                     )}

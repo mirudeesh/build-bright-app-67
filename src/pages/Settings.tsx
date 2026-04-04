@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Moon, Sun, Monitor, Bell, BellOff, Shield, Globe } from "lucide-react";
+import { ArrowLeft, Moon, Sun, Monitor, Bell, Shield, Globe, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -20,13 +21,62 @@ const Settings = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [chatSounds, setChatSounds] = useState(true);
   const [language, setLanguage] = useState("en");
+  const [saving, setSaving] = useState(false);
+  const [loadingSettings, setLoadingSettings] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
   }, [user, loading, navigate]);
 
-  const handleSave = () => {
-    toast({ title: "Settings saved", description: "Your preferences have been updated." });
+  // Load settings from database
+  useEffect(() => {
+    if (!user) return;
+    const load = async () => {
+      const { data } = await supabase
+        .from("user_settings")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (data) {
+        setEmailNotifications(data.email_notifications);
+        setChatSounds(data.chat_sounds);
+        setLanguage(data.language);
+        if (data.theme) setTheme(data.theme);
+      }
+      setLoadingSettings(false);
+    };
+    load();
+  }, [user]);
+
+  const handleSave = async () => {
+    if (!user) return;
+    setSaving(true);
+    const settings = {
+      user_id: user.id,
+      theme: theme || "system",
+      email_notifications: emailNotifications,
+      chat_sounds: chatSounds,
+      language,
+    };
+    // Upsert
+    const { data: existing } = await supabase
+      .from("user_settings")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    
+    let error;
+    if (existing) {
+      ({ error } = await supabase.from("user_settings").update(settings).eq("user_id", user.id));
+    } else {
+      ({ error } = await supabase.from("user_settings").insert(settings));
+    }
+    setSaving(false);
+    if (error) {
+      toast({ title: "Error", description: "Failed to save settings.", variant: "destructive" });
+    } else {
+      toast({ title: "Settings saved", description: "Your preferences have been updated." });
+    }
   };
 
   if (loading || !user) return null;
@@ -156,7 +206,9 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        <Button onClick={handleSave} className="w-full">Save Preferences</Button>
+        <Button onClick={handleSave} className="w-full" disabled={saving}>
+          {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : "Save Preferences"}
+        </Button>
       </div>
     </div>
   );
