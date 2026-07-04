@@ -6,10 +6,40 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Constant-time string comparison to prevent timing attacks
+function constantTimeEqual(a: string, b: string): boolean {
+  const encoder = new TextEncoder();
+  const bufA = encoder.encode(a);
+  const bufB = encoder.encode(b);
+  // Always compare the same number of bytes to avoid length-based timing leaks
+  const len = Math.max(bufA.length, bufB.length);
+  let diff = bufA.length ^ bufB.length;
+  for (let i = 0; i < len; i++) {
+    const x = i < bufA.length ? bufA[i] : 0;
+    const y = i < bufB.length ? bufB[i] : 0;
+    diff |= x ^ y;
+  }
+  return diff === 0;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Enforce a minimum, consistent response time to reduce timing signal
+  const startedAt = Date.now();
+  const MIN_RESPONSE_MS = 200;
+  const respond = async (body: unknown, status: number) => {
+    const elapsed = Date.now() - startedAt;
+    if (elapsed < MIN_RESPONSE_MS) {
+      await new Promise((r) => setTimeout(r, MIN_RESPONSE_MS - elapsed));
+    }
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  };
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -18,73 +48,58 @@ serve(async (req) => {
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "No authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return respond({ error: "No authorization header" }, 401);
     }
 
-    // Get user from token
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
+
     if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Invalid token" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return respond({ error: "Invalid token" }, 401);
     }
 
     const { code } = await req.json();
 
-    // Validate code format
     if (!code || typeof code !== "string" || !/^\d{6}$/.test(code)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid code format. Must be 6 digits." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return respond({ error: "Invalid or expired code" }, 400);
     }
 
-    // Find valid OTP
-    const { data: otpRecord, error: fetchError } = await supabase
+    // Fetch the user's most recent unverified, unexpired OTP without filtering
+    // on `code` — filtering by code creates a database-level timing signal.
+    const { data: otpRecord } = await supabase
       .from("otp_verifications")
       .select("*")
       .eq("user_id", user.id)
-      .eq("code", code)
       .eq("verified", false)
       .gt("expires_at", new Date().toISOString())
-      .single();
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    if (fetchError || !otpRecord) {
-      console.log("OTP verification failed:", fetchError);
-      return new Response(
-        JSON.stringify({ error: "Invalid or expired code" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    // Always run constant-time comparison, even if no record exists, so the
+    // work performed is independent of whether an OTP was found.
+    const storedCode = otpRecord?.code ?? "000000";
+    const codeMatches = constantTimeEqual(storedCode, code);
+    const isValid = !!otpRecord && codeMatches;
+
+    if (!isValid) {
+      return respond({ error: "Invalid or expired code" }, 400);
     }
 
-    // Mark OTP as verified
     const { error: updateError } = await supabase
       .from("otp_verifications")
       .update({ verified: true })
-      .eq("id", otpRecord.id);
+      .eq("id", otpRecord!.id);
 
     if (updateError) {
       console.error("Error updating OTP:", updateError);
-      throw new Error("Failed to verify OTP");
+      return respond({ error: "Failed to verify OTP" }, 500);
     }
 
     console.log("OTP verified successfully for user:", user.id);
-
-    return new Response(
-      JSON.stringify({ success: true, message: "OTP verified successfully" }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return respond({ success: true, message: "OTP verified successfully" }, 200);
   } catch (error: any) {
     console.error("Error in verify-otp function:", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return respond({ error: "Invalid or expired code" }, 400);
   }
 });
