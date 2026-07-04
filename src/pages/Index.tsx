@@ -6,6 +6,7 @@ import WelcomeScreen from "@/components/WelcomeScreen";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Trash2, LogOut, User, Bot, Settings } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import liquenoLogo from "@/assets/liqueno-logo.png";
@@ -26,10 +27,29 @@ const Index = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+    if (!user) {
       navigate("/auth");
-    } else if (!loading && user && needsOtpVerification && !otpVerified) {
+      return;
+    }
+    if (needsOtpVerification && !otpVerified) {
       navigate("/auth");
+      return;
+    }
+
+    // Send new social sign-in users through the onboarding flow to pick a username
+    const provider = user.app_metadata?.provider;
+    if (provider && provider !== "email") {
+      supabase
+        .from("profiles")
+        .select("onboarded")
+        .eq("id", user.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data && !data.onboarded) {
+            navigate("/onboarding");
+          }
+        });
     }
   }, [user, loading, navigate, otpVerified, needsOtpVerification]);
 
