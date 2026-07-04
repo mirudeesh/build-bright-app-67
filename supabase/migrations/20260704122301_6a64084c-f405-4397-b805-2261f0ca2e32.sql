@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS "Users can view own OTP records" ON public.otp_verifications;
+CREATE POLICY "Users can delete own OTP records" ON public.otp_verifications FOR DELETE USING (auth.uid() = user_id);

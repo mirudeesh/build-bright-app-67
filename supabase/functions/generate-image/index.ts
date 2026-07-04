@@ -35,14 +35,25 @@ serve(async (req) => {
     }
 
     const { prompt } = await req.json();
-    
-    if (!prompt) {
+
+    // Input validation
+    if (typeof prompt !== "string") {
       return new Response(
-        JSON.stringify({ error: "Prompt is required" }),
-        { 
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400 
-        }
+        JSON.stringify({ error: "Prompt must be a string" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+    const trimmedPrompt = prompt.trim();
+    if (trimmedPrompt.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Prompt cannot be empty" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+    if (trimmedPrompt.length > 2000) {
+      return new Response(
+        JSON.stringify({ error: "Prompt must be less than 2000 characters" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
 
@@ -62,7 +73,7 @@ serve(async (req) => {
         messages: [
           {
             role: "user",
-            content: prompt
+            content: trimmedPrompt
           }
         ],
         modalities: ["image", "text"]
