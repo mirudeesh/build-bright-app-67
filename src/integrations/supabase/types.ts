@@ -49,6 +49,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           id: string
+          onboarded: boolean
           updated_at: string
           username: string | null
         }
@@ -56,6 +57,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id: string
+          onboarded?: boolean
           updated_at?: string
           username?: string | null
         }
@@ -63,6 +65,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          onboarded?: boolean
           updated_at?: string
           username?: string | null
         }
