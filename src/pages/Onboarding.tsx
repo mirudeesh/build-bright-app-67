@@ -82,17 +82,16 @@ const Onboarding = () => {
     }
 
     setAvailability({ status: "checking" });
-    const controller = new AbortController();
+    let cancelled = false;
     const timer = setTimeout(async () => {
       const { data, error } = await supabase
         .from("profiles")
         .select("id")
         .ilike("username", parsed.data)
         .neq("id", user.id)
-        .maybeSingle()
-        .abortSignal(controller.signal);
+        .maybeSingle();
 
-      if (controller.signal.aborted) return;
+      if (cancelled) return;
       if (error && error.code !== "PGRST116") {
         setAvailability({ status: "error", message: "Couldn't check availability" });
         return;
@@ -101,7 +100,7 @@ const Onboarding = () => {
     }, 400);
 
     return () => {
-      controller.abort();
+      cancelled = true;
       clearTimeout(timer);
     };
   }, [username, user]);
