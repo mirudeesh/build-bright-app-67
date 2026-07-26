@@ -14,31 +14,73 @@ export type Database = {
   }
   public: {
     Tables: {
+      otp_audit_log: {
+        Row: {
+          created_at: string
+          detail: string | null
+          email: string | null
+          event: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          email?: string | null
+          event: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          email?: string | null
+          event?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       otp_verifications: {
         Row: {
+          attempts: number
           code: string
           created_at: string | null
           email: string
           expires_at: string
           id: string
+          locked: boolean
+          max_attempts: number
           user_id: string
           verified: boolean | null
         }
         Insert: {
+          attempts?: number
           code: string
           created_at?: string | null
           email: string
           expires_at: string
           id?: string
+          locked?: boolean
+          max_attempts?: number
           user_id: string
           verified?: boolean | null
         }
         Update: {
+          attempts?: number
           code?: string
           created_at?: string | null
           email?: string
           expires_at?: string
           id?: string
+          locked?: boolean
+          max_attempts?: number
           user_id?: string
           verified?: boolean | null
         }
