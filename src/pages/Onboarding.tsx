@@ -35,6 +35,8 @@ const Onboarding = () => {
   const [checking, setChecking] = useState(true);
   const [saving, setSaving] = useState(false);
   const [availability, setAvailability] = useState<Availability>({ status: "idle" });
+  const [success, setSuccess] = useState(false);
+  const [redirectProgress, setRedirectProgress] = useState(0);
 
   useEffect(() => {
     if (loading) return;
