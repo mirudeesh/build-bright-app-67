@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Loader2, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
 import liquenoLogo from "@/assets/liqueno-logo.png";
 
 const usernameSchema = z
@@ -34,6 +35,8 @@ const Onboarding = () => {
   const [checking, setChecking] = useState(true);
   const [saving, setSaving] = useState(false);
   const [availability, setAvailability] = useState<Availability>({ status: "idle" });
+  const [success, setSuccess] = useState(false);
+  const [redirectProgress, setRedirectProgress] = useState(0);
 
   useEffect(() => {
     if (loading) return;
@@ -139,8 +142,26 @@ const Onboarding = () => {
     }
 
     toast({ description: "Welcome to Liqueno!" });
-    navigate("/");
+    setSuccess(true);
   };
+
+  useEffect(() => {
+    if (!success) return;
+    const duration = 2000;
+    const interval = 50;
+    let progress = 0;
+    const progressTimer = setInterval(() => {
+      progress += (interval / duration) * 100;
+      setRedirectProgress(Math.min(progress, 100));
+    }, interval);
+    const redirectTimer = setTimeout(() => {
+      navigate("/");
+    }, duration);
+    return () => {
+      clearInterval(progressTimer);
+      clearTimeout(redirectTimer);
+    };
+  }, [success, navigate]);
 
   const statusNode = useMemo(() => {
     switch (availability.status) {
@@ -179,6 +200,33 @@ const Onboarding = () => {
     return (
       <div className="flex items-center justify-center h-screen bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+              <Check className="h-7 w-7 text-green-600 dark:text-green-500" />
+            </div>
+            <CardTitle>Profile complete!</CardTitle>
+            <CardDescription>
+              Your username is set. You&apos;re all ready to start using Liqueno.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Progress value={redirectProgress} className="h-2" />
+            <p className="text-sm text-muted-foreground">
+              Taking you into the app in a moment…
+            </p>
+            <Button className="w-full" onClick={() => navigate("/")}>
+              Go to app now
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
