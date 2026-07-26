@@ -142,8 +142,26 @@ const Onboarding = () => {
     }
 
     toast({ description: "Welcome to Liqueno!" });
-    navigate("/");
+    setSuccess(true);
   };
+
+  useEffect(() => {
+    if (!success) return;
+    const duration = 2000;
+    const interval = 50;
+    let progress = 0;
+    const progressTimer = setInterval(() => {
+      progress += (interval / duration) * 100;
+      setRedirectProgress(Math.min(progress, 100));
+    }, interval);
+    const redirectTimer = setTimeout(() => {
+      navigate("/");
+    }, duration);
+    return () => {
+      clearInterval(progressTimer);
+      clearTimeout(redirectTimer);
+    };
+  }, [success, navigate]);
 
   const statusNode = useMemo(() => {
     switch (availability.status) {
