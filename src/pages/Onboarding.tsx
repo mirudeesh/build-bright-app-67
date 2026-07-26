@@ -204,6 +204,33 @@ const Onboarding = () => {
     );
   }
 
+  if (success) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+              <Check className="h-7 w-7 text-green-600 dark:text-green-500" />
+            </div>
+            <CardTitle>Profile complete!</CardTitle>
+            <CardDescription>
+              Your username is set. You&apos;re all ready to start using Liqueno.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Progress value={redirectProgress} className="h-2" />
+            <p className="text-sm text-muted-foreground">
+              Taking you into the app in a moment…
+            </p>
+            <Button className="w-full" onClick={() => navigate("/")}>
+              Go to app now
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-md">
