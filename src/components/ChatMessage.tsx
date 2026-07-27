@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Bot, User, Copy, Check } from "lucide-react";
@@ -7,13 +7,16 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import liquenoLogo from "@/assets/liqueno-logo.png";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
   content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
+  userAvatarUrl?: string | null;
+  userName?: string | null;
 }
 
-const ChatMessage = ({ role, content }: ChatMessageProps) => {
+const ChatMessage = ({ role, content, userAvatarUrl, userName }: ChatMessageProps) => {
   const isUser = role === "user";
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
@@ -186,6 +189,7 @@ const ChatMessage = ({ role, content }: ChatMessageProps) => {
     <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
       {!isUser && (
         <Avatar className="h-8 w-8 border-2 border-primary/20">
+          <AvatarImage src={liquenoLogo} alt="Liqueno" />
           <AvatarFallback className="bg-primary text-primary-foreground">
             <Bot className="h-4 w-4" />
           </AvatarFallback>
@@ -221,8 +225,9 @@ const ChatMessage = ({ role, content }: ChatMessageProps) => {
       
       {isUser && (
         <Avatar className="h-8 w-8 border-2 border-primary/20">
+          {userAvatarUrl && <AvatarImage src={userAvatarUrl} alt="You" />}
           <AvatarFallback className="bg-primary text-primary-foreground">
-            <User className="h-4 w-4" />
+            {userName ? userName.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
           </AvatarFallback>
         </Avatar>
       )}
