@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ChatMessage from "@/components/ChatMessage";
 import ChatInput from "@/components/ChatInput";
@@ -7,7 +7,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Trash2, LogOut, User, Bot, Settings } from "lucide-react";
+import { Trash2, LogOut, User, Bot, Settings, ShieldCheck } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import liquenoLogo from "@/assets/liqueno-logo.png";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,25 @@ const Index = () => {
   const { user, signOut, loading, otpVerified, needsOtpVerification } = useAuth();
   const { messages, sendMessage, isLoading, clearMessages } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [profile, setProfile] = useState<{ username: string | null; avatar_url: string | null } | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      setIsAdmin(false);
+      return;
+    }
+    supabase
+      .from("profiles")
+      .select("username, avatar_url")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setProfile(data ?? null));
+    supabase
+      .rpc("has_role", { _user_id: user.id, _role: "admin" })
+      .then(({ data }) => setIsAdmin(Boolean(data)));
+  }, [user]);
 
   useEffect(() => {
     if (loading) return;
