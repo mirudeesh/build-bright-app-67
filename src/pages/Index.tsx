@@ -127,9 +127,9 @@ const Index = () => {
                   className="flex items-center gap-2 px-2"
                 >
                   <Avatar className="h-7 w-7">
-                    <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture} alt="avatar" />
+                    <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture} alt="avatar" />
                     <AvatarFallback className="text-xs">
-                      {(user?.user_metadata?.full_name || user?.user_metadata?.username || user?.email || "U").charAt(0).toUpperCase()}
+                      {(profile?.username || user?.user_metadata?.full_name || user?.user_metadata?.username || user?.email || "U").charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <span className="hidden sm:inline text-sm font-medium max-w-[100px] truncate">
@@ -153,6 +153,12 @@ const Index = () => {
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate("/admin")}>
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Admin
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
@@ -177,13 +183,13 @@ const Index = () => {
                   key={index}
                   role={message.role}
                   content={message.content}
+                  userAvatarUrl={profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture}
+                  userName={profile?.username || user?.user_metadata?.full_name || user?.email}
                 />
               ))}
               {isLoading && (
                 <div className="flex gap-3 justify-start">
-                  <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Bot className="h-4 w-4 text-primary animate-pulse" />
-                  </div>
+                  <img src={liquenoLogo} alt="Liqueno" className="h-8 w-8 rounded-full animate-pulse" />
                   <div className="bg-muted rounded-2xl px-4 py-3">
                     <div className="flex gap-1">
                       <div className="h-2 w-2 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
