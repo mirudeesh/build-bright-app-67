@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Bot, User, Copy, Check } from "lucide-react";
@@ -7,13 +7,16 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import liquenoLogo from "@/assets/liqueno-logo.png";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
   content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
+  userAvatarUrl?: string | null;
+  userName?: string | null;
 }
 
-const ChatMessage = ({ role, content }: ChatMessageProps) => {
+const ChatMessage = ({ role, content, userAvatarUrl, userName }: ChatMessageProps) => {
   const isUser = role === "user";
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
