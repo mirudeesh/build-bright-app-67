@@ -189,6 +189,7 @@ const ChatMessage = ({ role, content, userAvatarUrl, userName }: ChatMessageProp
     <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
       {!isUser && (
         <Avatar className="h-8 w-8 border-2 border-primary/20">
+          <AvatarImage src={liquenoLogo} alt="Liqueno" />
           <AvatarFallback className="bg-primary text-primary-foreground">
             <Bot className="h-4 w-4" />
           </AvatarFallback>
@@ -224,8 +225,9 @@ const ChatMessage = ({ role, content, userAvatarUrl, userName }: ChatMessageProp
       
       {isUser && (
         <Avatar className="h-8 w-8 border-2 border-primary/20">
+          {userAvatarUrl && <AvatarImage src={userAvatarUrl} alt="You" />}
           <AvatarFallback className="bg-primary text-primary-foreground">
-            <User className="h-4 w-4" />
+            {userName ? userName.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
           </AvatarFallback>
         </Avatar>
       )}
